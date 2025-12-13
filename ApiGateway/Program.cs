@@ -167,12 +167,11 @@ try
             });
         });
 
-    // Add Health Checks
+    // Add Health Checks (solo per il gateway stesso)
+    // Gli health check degli upstream sono gestiti automaticamente da YARP
+    // tramite la configurazione in ReverseProxy:Clusters:*:HealthCheck
     builder.Services.AddHealthChecks()
-        .AddCheck<GatewayHealthCheck>("gateway_health")
-        .AddUrlGroup(new Uri($"{builder.Configuration["ReverseProxy:Clusters:auth-cluster:Destinations:auth-service:Address"]}/health"), 
-            name: "auth-service", 
-            timeout: TimeSpan.FromSeconds(5));
+        .AddCheck<GatewayHealthCheck>("gateway_health");
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();

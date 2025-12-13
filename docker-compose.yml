@@ -21,8 +21,6 @@ services:
       # Centralized Logging (optional)
       - SEQ_URL=${SEQ_URL:-}
       - SEQ_API_KEY=${SEQ_API_KEY:-}
-    networks:
-      - ${NETWORK_NAME:-microservices-network}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -33,7 +31,5 @@ services:
     volumes:
       - ./ApiGateway/logs:/app/logs
 
-networks:
-  microservices-network:
-    external: true
-    name: ${NETWORK_NAME:-microservices-network}
+# Nota: quando integri con altri microservizi, usa il compose master in deploy/
+# che gestisce la rete condivisa microservices-network
