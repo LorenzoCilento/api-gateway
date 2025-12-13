@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS:-http://+:5000}
+      - Keycloak__Authority=${KEYCLOAK_AUTHORITY}
+      - Keycloak__RequireHttpsMetadata=${KEYCLOAK_REQUIRE_HTTPS:-false}
+      - ReverseProxy__Clusters__auth-cluster__Destinations__auth-service__Address=${AUTH_SERVICE_URL}
+      - Cors__AllowedOrigins__0=${ALLOWED_ORIGIN_1}
+      - Cors__AllowedOrigins__1=${ALLOWED_ORIGIN_2}
+      # Centralized Logging (optional)
+      - SEQ_URL=${SEQ_URL:-}
+      - SEQ_API_KEY=${SEQ_API_KEY:-}
+    networks:
+      - ${NETWORK_NAME:-microservices-network}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./ApiGateway/logs:/app/logs
+
+networks:
+  microservices-network:
+    external: true
+    name: ${NETWORK_NAME:-microservices-network}

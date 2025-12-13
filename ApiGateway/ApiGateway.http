@@ -1,0 +1,87 @@
+@ApiGateway_HostAddress = http://localhost:5000
+
+### Health Check
+GET {{ApiGateway_HostAddress}}/health
+Accept: application/json
+
+###
+
+### Gateway Info
+GET {{ApiGateway_HostAddress}}/api/gateway/info
+Accept: application/json
+
+###
+
+### Gateway Routes
+GET {{ApiGateway_HostAddress}}/api/gateway/routes
+Accept: application/json
+
+###
+
+### Test Correlation ID
+GET {{ApiGateway_HostAddress}}/api/gateway/info
+X-Correlation-ID: test-correlation-123
+Accept: application/json
+
+###
+
+### Register User (through Gateway)
+POST {{ApiGateway_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!",
+  "username": "testuser"
+}
+
+###
+
+### Login (through Gateway)
+POST {{ApiGateway_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123!"
+}
+
+###
+
+### Refresh Token (through Gateway)
+# @name refreshToken
+POST {{ApiGateway_HostAddress}}/api/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+###
+
+### Protected Endpoint Test (with Bearer Token)
+GET {{ApiGateway_HostAddress}}/api/auth/protected-endpoint
+Authorization: Bearer {{access_token}}
+Accept: application/json
+
+###
+
+### Test Rate Limiting
+# Execute this multiple times rapidly to test rate limiting
+POST {{ApiGateway_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "wrong"
+}
+
+###
+
+### Test CORS Preflight
+OPTIONS {{ApiGateway_HostAddress}}/api/auth/login
+Origin: http://localhost:4200
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
+
+###
