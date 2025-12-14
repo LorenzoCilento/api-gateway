@@ -138,34 +138,7 @@ try
 
     // Add YARP Reverse Proxy
     builder.Services.AddReverseProxy()
-        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-        .AddTransforms(builderContext =>
-        {
-            // Add correlation ID to all proxied requests
-            builderContext.AddRequestTransform(async transformContext =>
-            {
-                var httpContext = transformContext.HttpContext;
-                if (httpContext.Items.TryGetValue("CorrelationId", out var correlationId))
-                {
-                    transformContext.ProxyRequest.Headers.Add("X-Correlation-ID", correlationId?.ToString());
-                }
-                await Task.CompletedTask;
-            });
-
-            // Collect upstream metrics
-            builderContext.AddResponseTransform(async transformContext =>
-            {
-                var httpContext = transformContext.HttpContext;
-                var route = httpContext.GetRouteValue("routeId")?.ToString() ?? "unknown";
-                var statusCode = transformContext.ProxyResponse?.StatusCode.ToString() ?? "unknown";
-                
-                GatewayMetrics.UpstreamRequestsTotal
-                    .WithLabels(route, statusCode)
-                    .Inc();
-                
-                await Task.CompletedTask;
-            });
-        });
+        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
     // Add Health Checks (solo per il gateway stesso)
     // Gli health check degli upstream sono gestiti automaticamente da YARP
